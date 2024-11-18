@@ -1,0 +1,11 @@
+
+#myCanvas{
+    border: 1px solid rgb(10, 10, 11);
+    height: 500px;
+    width: 1000px;
+    position: relative;
+    left : 250px;
+    top: 50px;
+    
+
+}
