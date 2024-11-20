@@ -15,22 +15,10 @@ document.addEventListener('DOMContentLoaded', function() {
     
     const canvas = document.createElement('canvas');
     canvas.id = 'stockChart';
-    const decisionBox = document.createElement('div');
-    decisionBox.className = 'decision-box';
-    decisionBox.style.position = 'absolute';
-    decisionBox.style.top = '20px';
-    decisionBox.style.right = '20px';
-    decisionBox.style.backgroundColor = '#f8f9fa';
-    decisionBox.style.border = '1px solid #ddd';
-    decisionBox.style.padding = '10px';
-    decisionBox.style.borderRadius = '5px';
-    decisionBox.style.boxShadow = '0 2px 5px rgba(0, 0, 0, 0.1)';
-    decisionBox.style.textAlign = 'center';
-    decisionBox.innerHTML = `<h4>Today's Decision</h4><p id="decisionText">Hold</p>`;
+  
 
     
     container.appendChild(header);
-    container.appendChild(decisionBox);
     container.appendChild(canvas);
     document.body.appendChild(container);
 
@@ -56,7 +44,8 @@ document.addEventListener('DOMContentLoaded', function() {
             close: dataPoint[3],
             volume: dataPoint[4],
             dividends: dataPoint[5],
-            splits: dataPoint[6]
+            splits: dataPoint[6],
+            decision: dataPoint[8],
         }));
     }
 
@@ -111,7 +100,14 @@ document.addEventListener('DOMContentLoaded', function() {
                         borderDash: [5, 5],
                         tension: 0.1,
                         fill: false
+                    },
+                
+                    {
+                        label: 'Decision',
+                        data: [],
                     }
+        
+
                 ]
             },
             options: {
@@ -122,7 +118,7 @@ document.addEventListener('DOMContentLoaded', function() {
                     mode: 'index'
                 },
                 animation: {
-                    duration: 0 // Disable default animations
+                    duration: 0 
                 },
                 scales: {
                     x: {
@@ -143,8 +139,12 @@ document.addEventListener('DOMContentLoaded', function() {
                     tooltip: {
                         callbacks: {
                             label: function(context) {
+                                if (context.dataset.label === 'Decision') {
+                                    return `Decision: ${context.parsed.y}`;
+                                }
                                 return context.dataset.label + ': $' + context.parsed.y.toFixed(2);
                             }
+                            
                         }
                     }
                 }
@@ -157,7 +157,7 @@ document.addEventListener('DOMContentLoaded', function() {
             const point = fullData[currentIndex];
             currentData.push(point);
             
-            // Remove old data points if we exceed the window size
+            // To old data points if we exceed the window size
             if (currentData.length > WINDOW_SIZE) {
                 currentData.shift();
                 stockChart.data.labels.shift();
@@ -171,11 +171,12 @@ document.addEventListener('DOMContentLoaded', function() {
             stockChart.data.datasets[1].data.push(point.open);
             stockChart.data.datasets[2].data.push(point.high);
             stockChart.data.datasets[3].data.push(point.low);
-            
-            stockChart.update('none'); // Update without animation
+            // to add here the same line but for decision
+            stockChart.data.datasets[4].data.push(point.decision);
+            stockChart.update('none'); 
             
             currentIndex++;
-            // Schedule next point
+
             setTimeout(addDataPoint, UPDATE_INTERVAL);
         } else {
             // All points added, schedule next data fetch
@@ -205,6 +206,5 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     }
 
-    // Initial fetch
     fetchData();
 });
